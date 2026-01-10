@@ -1,35 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react'; // useEffect hinzufügen
+import { NetworkGraph } from '@/components/network/NetworkGraph';
+import { Questionnaire } from '@/components/questionnaire/Questionnaire';
+import { supabase } from '@/lib/supabase'; // Supabase importieren
+import type { NetworkData } from '@/types';
+
+const INITIAL_DATA: NetworkData = {
+  ego: { acronym: '', age: '', gender: 'female' },
+  alteri: [],
+  meta: { interviewer: '', date: new Date().toISOString() }
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [data, setData] = useState<NetworkData>(INITIAL_DATA);
+  const [session, setSession] = useState<any>(null); // Speichert den Login-Status
+
+  // NEU: Beim Starten der App automatisch anonym einloggen
+  useEffect(() => {
+    const initAuth = async () => {
+      // Prüfen, ob wir schon eingeloggt sind
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        setSession(session);
+      } else {
+        // Wenn nicht, anonym einloggen
+        const { data: { session }, error } = await supabase.auth.signInAnonymously();
+        if (error) console.error('Login Fehler:', error);
+        setSession(session);
+      }
+    };
+
+    initAuth();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-100">
+      
+      {/* Linker Bereich (Graph) */}
+      <div className="flex-grow relative border-r border-slate-200 bg-white shadow-sm transition-all duration-300">
+        <div className="absolute top-4 left-4 z-10 pointer-events-none">
+          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">KoordinAID</h1>
+          <p className="text-sm text-slate-500">
+            {session ? 'Online (Gesichert)' : 'Verbinde...'} 
+          </p>
+        </div>
+        
+        <div className="w-full h-full">
+            <NetworkGraph 
+                ego={data.ego} 
+                alteri={data.alteri} 
+                width={window.innerWidth * 0.66} 
+                height={window.innerHeight}
+            />
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+      {/* Rechter Bereich (Formular) */}
+      <div className="w-[450px] min-w-[350px] bg-slate-50 border-l shadow-xl z-20">
+        <Questionnaire 
+            data={data} 
+            onChange={setData} 
+        />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+    </div>
+  );
 }
 
-export default App
+export default App;
