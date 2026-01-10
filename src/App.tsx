@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'; // useEffect hinzufügen
 import { NetworkGraph } from '@/components/network/NetworkGraph';
 import { Questionnaire } from '@/components/questionnaire/Questionnaire';
 import { supabase } from '@/lib/supabase'; // Supabase importieren
+import { Legend } from '@/components/network/Legend';
 import type { NetworkData } from '@/types';
+
 
 const INITIAL_DATA: NetworkData = {
   ego: { acronym: '', age: '', gender: 'female' },
@@ -52,6 +54,7 @@ function App() {
                 width={window.innerWidth * 0.66} 
                 height={window.innerHeight}
             />
+            <Legend />
         </div>
       </div>
 
