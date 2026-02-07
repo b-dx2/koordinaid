@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'; // useEffect hinzufügen
+import { useState } from 'react';
 import { NetworkGraph } from '@/components/network/NetworkGraph';
 import { Questionnaire } from '@/components/questionnaire/Questionnaire';
 import { Legend } from '@/components/network/Legend';
 import type { NetworkData } from '@/types';
-
 
 const INITIAL_DATA: NetworkData = {
   ego: { acronym: '', age: '', gender: 'female' },
@@ -13,9 +12,6 @@ const INITIAL_DATA: NetworkData = {
 
 function App() {
   const [data, setData] = useState<NetworkData>(INITIAL_DATA);
-  const [session, setSession] = useState<any>(null); // Speichert den Login-Status
-
-  
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-100">
@@ -25,7 +21,7 @@ function App() {
         <div className="absolute top-4 left-4 z-10 pointer-events-none">
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">KoordinAID</h1>
           <p className="text-sm text-slate-500">
-            {session ? 'Online (Gesichert)'} 
+            Online
           </p>
         </div>
         
@@ -36,8 +32,10 @@ function App() {
                 width={window.innerWidth * 0.66} 
                 height={window.innerHeight}
             />
-            <Legend />
         </div>
+
+        {/* Legende unten links */}
+        <Legend />
       </div>
 
       {/* Rechter Bereich (Formular) */}
