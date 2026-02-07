@@ -4,7 +4,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { EgoForm } from './EgoForm';
 import { AlteriForm } from './AlteriForm';
 import { MetaForm } from './MetaForm';
-import { supabase } from '@/lib/supabase';
 import type { NetworkData, Alteri } from '@/types';
 import { Plus, Trash2, Save, CheckCircle2, ChevronRight } from 'lucide-react';
 
@@ -57,15 +56,34 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({ data, onChange }) 
     }
   };
 
-  const handleSave = async () => {
+    const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('surveys')
-        .insert([{ network_data: data }]);
+      // ALT (Supabase):
+      // const { error } = await supabase.from('surveys').insert(...)
 
-      if (error) throw error;
-      alert('Netzwerk erfolgreich gespeichert!');
+      // NEU (Neon via Vercel API):
+      const response = await fetch('/api/save-network', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ network_data: data }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Fehler beim Senden an den Server');
+      }
+
+      // Umami Tracking (bleibt gleich)
+      if (window.umami) {
+        window.umami.track('Netzwerk gespeichert', {
+          personCount: data.alteri.length,
+          interviewer: data.meta.interviewer || 'unknown'
+        });
+      }
+
+      alert('Netzwerk erfolgreich in Neon gespeichert!');
     } catch (error) {
       console.error('Fehler:', error);
       alert('Fehler beim Speichern.');
@@ -73,6 +91,7 @@ export const Questionnaire: React.FC<QuestionnaireProps> = ({ data, onChange }) 
       setIsSaving(false);
     }
   };
+
 
   // Hilfsfunktion für den "Weiter"-Button Logik
   const handleNext = () => {

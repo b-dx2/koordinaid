@@ -23,6 +23,7 @@ Es ist digitalisierte Variante des BZPD-Projektes [KoordinAID](https://www.hs-ke
         * Neutrale Startkategorien
         * 1. Frage: Wo vermutet größte Bedarfe?
         * Dienstleister als eigene Symbole
+        * Stärkere (zeitliche) Unabhängigkeit von supabase-DB
 
 ## 🛠 Tech Stack
 
